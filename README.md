@@ -32,7 +32,7 @@ Uma SPA (Single Page Application) que permite:
 # Instalar dependências
 yarn install
 
-# Rodar em desenvolvimento
+# Iniciar servidor do site a ser testado
 yarn dev
 ```
 
