@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { gerarCodigoPedido } from '../support/helpers';
+import { OrderLockupPage } from '../support/pages/OrderLockupPage';
 
 /// AAA - Arrange, Act, Assert
 
@@ -34,8 +35,8 @@ test.describe('Consulta de Pedidos', () => {
     };
 
     // Act
-    await page.getByRole('textbox', { name: 'Número do Pedido' }).fill(order.number);
-    await page.getByRole('button', { name: 'Buscar Pedido' }).click();
+    const orderLockupPage = new OrderLockupPage(page);
+    await orderLockupPage.searchOrder(order.number);
 
     // Assert
     await expect(page.getByTestId(`order-result-${order.number}`)).toMatchAriaSnapshot(`
@@ -97,8 +98,8 @@ test.describe('Consulta de Pedidos', () => {
     };
 
     // Act
-    await page.getByRole('textbox', { name: 'Número do Pedido' }).fill(order.number);
-    await page.getByRole('button', { name: 'Buscar Pedido' }).click();
+    const orderLockupPage = new OrderLockupPage(page);
+    await orderLockupPage.searchOrder(order.number);
 
     // Assert
     await expect(page.getByTestId(`order-result-${order.number}`)).toMatchAriaSnapshot(`
@@ -160,8 +161,8 @@ test.describe('Consulta de Pedidos', () => {
     };
 
     // Act
-    await page.getByRole('textbox', { name: 'Número do Pedido' }).fill(order.number);
-    await page.getByRole('button', { name: 'Buscar Pedido' }).click();
+    const orderLockupPage = new OrderLockupPage(page);
+    await orderLockupPage.searchOrder(order.number);
 
     // Assert
     await expect(page.getByTestId(`order-result-${order.number}`)).toMatchAriaSnapshot(`
@@ -210,8 +211,8 @@ test.describe('Consulta de Pedidos', () => {
     const orderError = gerarCodigoPedido()
 
     // Act
-    await page.getByRole('textbox', { name: 'Número do Pedido' }).fill(orderError);
-    await page.getByRole('button', { name: 'Buscar Pedido' }).click();
+    const orderLockupPage = new OrderLockupPage(page);
+    await orderLockupPage.searchOrder(orderError);
 
     // Assert
     await expect(page.locator('#root')).toMatchAriaSnapshot(`

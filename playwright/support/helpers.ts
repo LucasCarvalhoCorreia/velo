@@ -13,4 +13,4 @@ export function gerarCodigoPedido() {
       ).join('');
   
     return `VLO-${gerarLetras(4)}${gerarNumeros(2)}`;
-  }
+}
