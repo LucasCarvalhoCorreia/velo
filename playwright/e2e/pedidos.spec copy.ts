@@ -21,16 +21,15 @@ test.describe('Consulta de Pedido', () => {
 
     // Test Data
     const order = {
-      number: 'VLO-MMTX2T', 
+      number: 'VLO-6E2J20',
       status: 'APROVADO' as const,
-      color: 'Midnight Black',
-      interior: 'cream',
-      wheels: 'sport Wheels',
+      color: 'Lunar White',
+      wheels: 'aero Wheels',
       customer: {
-        name: 'Lucas Correia',
-        email: 'lucas.correia@keeggo.com',
+        name: 'Fernando Papito',
+        email: 'papito@velo.dev'
       },
-      payment: 'À Vista',
+      payment: 'À Vista'
     }
 
     // Act  
@@ -41,7 +40,7 @@ test.describe('Consulta de Pedido', () => {
     await expect(page.getByTestId(`order-result-${order.number}`)).toMatchAriaSnapshot(`
       - img
       - paragraph: Pedido
-      - text: ${order.number}
+      - paragraph: ${order.number}
       - status:
         - img
         - text: ${order.status}
@@ -51,7 +50,7 @@ test.describe('Consulta de Pedido', () => {
       - paragraph: Cor
       - paragraph: ${order.color}
       - paragraph: Interior
-      - paragraph: ${order.interior}
+      - paragraph: cream
       - paragraph: Rodas
       - paragraph: ${order.wheels}
       - heading "Dados do Cliente" [level=4]
@@ -77,16 +76,15 @@ test.describe('Consulta de Pedido', () => {
 
     // Test Data
     const order = {
-      number: 'VLO-LN7HYH',
+      number: 'VLO-0LNFEA',
       status: 'REPROVADO' as const,
-      color: 'Glacier Blue',
-      interior: 'cream',
-      wheels: 'aero Wheels',
+      color: 'Midnight Black',
+      wheels: 'sport Wheels',
       customer: {
-        name: 'Marcelo Faria Limer',
-        email: 'marcelo.faria@hotmail.com',
+        name: 'Steve Jobs',
+        email: 'jobs@apple.com'
       },
-      payment: 'À Vista',
+      payment: 'À Vista'
     }
 
     // Act  
@@ -97,7 +95,7 @@ test.describe('Consulta de Pedido', () => {
     await expect(page.getByTestId(`order-result-${order.number}`)).toMatchAriaSnapshot(`
       - img
       - paragraph: Pedido
-      - text: ${order.number}
+      - paragraph: ${order.number}
       - status:
         - img
         - text: ${order.status}
@@ -107,7 +105,7 @@ test.describe('Consulta de Pedido', () => {
       - paragraph: Cor
       - paragraph: ${order.color}
       - paragraph: Interior
-      - paragraph: ${order.interior}
+      - paragraph: cream
       - paragraph: Rodas
       - paragraph: ${order.wheels}
       - heading "Dados do Cliente" [level=4]
@@ -132,16 +130,15 @@ test.describe('Consulta de Pedido', () => {
 
     // Test Data
     const order = {
-      number: 'VLO-1DX8GK',
+      number: 'VLO-412O06',
       status: 'EM_ANALISE' as const,
       color: 'Lunar White',
-      interior: 'cream',
       wheels: 'aero Wheels',
       customer: {
-        name: 'Mario Barbosa Lima',
-        email: 'mario.blima@hotmail.com',
+        name: 'João da Silva',
+        email: 'joao@velo.dev'
       },
-      payment: 'À Vista',
+      payment: 'À Vista'
     }
 
     // Act  
@@ -152,7 +149,7 @@ test.describe('Consulta de Pedido', () => {
     await expect(page.getByTestId(`order-result-${order.number}`)).toMatchAriaSnapshot(`
       - img
       - paragraph: Pedido
-      - text: ${order.number}
+      - paragraph: ${order.number}
       - status:
         - img
         - text: ${order.status}
@@ -162,7 +159,7 @@ test.describe('Consulta de Pedido', () => {
       - paragraph: Cor
       - paragraph: ${order.color}
       - paragraph: Interior
-      - paragraph: ${order.interior}
+      - paragraph: cream
       - paragraph: Rodas
       - paragraph: ${order.wheels}
       - heading "Dados do Cliente" [level=4]
