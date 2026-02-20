@@ -4,8 +4,7 @@ export class LandingPage {
   constructor(private page: Page) {}
 
   async goto() {
-    await this.page.goto('http://localhost:5173/')
+    await this.page.goto('/')
     await expect(this.page.getByTestId('hero-section').getByRole('heading')).toContainText('Velô Sprint')
   }
 }
-
