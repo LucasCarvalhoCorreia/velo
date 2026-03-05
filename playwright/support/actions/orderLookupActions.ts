@@ -16,7 +16,16 @@ export type OrderDetails = {
 }
 
 export function createOrderLookupActions(page: Page) {
+    const orderInput = page.getByRole('textbox', { name: 'Número do Pedido' })
+    const searchButton = page.getByRole('button', { name: 'Buscar Pedido' })
+
   return {
+
+    elements: {
+        orderInput,
+        searchButton
+    },
+
     async open() {
       await page.goto('/')
       await expect(page.getByTestId('hero-section').getByRole('heading')).toContainText('Velô Sprint')

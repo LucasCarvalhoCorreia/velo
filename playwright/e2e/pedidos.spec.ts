@@ -2,12 +2,9 @@ import { test, expect } from '../support/fixtures'
 import { gerarCodigoPedido } from '../support/helpers'
 import { OrderDetails } from '../support/actions/orderLookupActions'
 
-/// AAA - Arrange, Act, Assert
-
 test.describe('Consulta de Pedido', () => {
   test.beforeEach(async ({ app }) => {
-    // Arrange
-        await app.orderLookup.open()
+    await app.orderLookup.open()
   })
 
   test('deve consultar um pedido aprovado', async ({ app }) => {
@@ -82,4 +79,13 @@ test.describe('Consulta de Pedido', () => {
     await app.orderLookup.searchOrder(invalidOrderCode)
     await app.orderLookup.validateOrderNotFound()
   })
+
+  test('deve manter o botão de busca desabilitado com campo vazio ou apenas espaços', async ({ app, page }) => {
+    const button = app.orderLookup.elements.searchButton
+    await expect(button).toBeDisabled()
+
+    await app.orderLookup.elements.orderInput.fill('   ')
+    await expect(button).toBeDisabled()
+  })
+
 })
