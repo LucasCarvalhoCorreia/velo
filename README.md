@@ -158,3 +158,9 @@ npm run dev      # Desenvolvimento
 npm run build    # Build de produção
 npm run lint     # Verificar código
 ```
+
+-- Inicia o mapeador de elementos
+yarn playwright codegen http://localhost:5173/
+
+-- Inicia o playwright test
+yarn playwright test --ui
