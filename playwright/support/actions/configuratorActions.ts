@@ -29,10 +29,12 @@ export function createConfiguratorActions(page: Page) {
       await expect(carImage).toHaveAttribute('src', src)
     },
 
-    async goToCheckout(expectedTotal: string) {
+    async goToCheckout() {
       await page.getByRole('button', { name: /Monte o Seu/i }).click()
       await expect(page).toHaveURL(/\/order/)
+    },
 
+    async expectTotalPrice(expectedTotal: string) {
       const summaryTotal = page.getByTestId('summary-total-price')
       await expect(summaryTotal).toBeVisible()
       await expect(summaryTotal).toHaveText(expectedTotal)
