@@ -29,9 +29,9 @@ export function createConfiguratorActions(page: Page) {
       await expect(carImage).toHaveAttribute('src', src)
     },
 
-    async goToCheckout() {
+    async finishConfigurator() {
       await page.getByRole('button', { name: /Monte o Seu/i }).click()
-      await expect(page).toHaveURL(/\/order/)
+      await expect(page).toHaveURL(/\/order/) 
     },
 
     async expectTotalPrice(expectedTotal: string) {

@@ -1,16 +1,13 @@
-export function gerarCodigoPedido() {
-    const letras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    const numeros = '0123456789'
-  
-    const gerarLetras = (quantidade: number) =>
-      Array.from({ length: quantidade }, () =>
-        letras.charAt(Math.floor(Math.random() * letras.length))
-      ).join('')
-  
-    const gerarNumeros = (quantidade: number) =>
-      Array.from({ length: quantidade }, () =>
-        numeros.charAt(Math.floor(Math.random() * numeros.length))
-      ).join('')
-  
-    return `VLO-${gerarLetras(4)}${gerarNumeros(2)}`
+export function generateOrderCode() {
+    const prefix = 'VLO'
+
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    let randomPart = ''
+
+    for (let i = 0; i < 6; i++) {
+        const randomIndex = Math.floor(Math.random() * chars.length)
+        randomPart += chars[randomIndex]
+    }
+
+    return `${prefix}-${randomPart}`
 }
