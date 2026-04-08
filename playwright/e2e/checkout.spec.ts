@@ -109,15 +109,6 @@ test.describe('CT04 - Checkout - Validação de Campos Obrigatórios e Dados Inv
 })
 
 test.describe('CT05 - Checkout e Confirmação - Pagamento à Vista (Fluxo Feliz)', () => {
-  test.beforeEach(async ({ page, app }) => {
-    await page.goto('/order')
-    await expect(page.getByTestId('checkout-submit')).toBeVisible()
-
-    alerts = app.checkout.elements.alerts
-  })
-  
-  let alerts: any
-
   test('deve criar um pedido com sucesso para pagamento à vista', async ({ page, app }) => {
 
     const customer = {
