@@ -142,4 +142,48 @@ test.describe('CT05 - Checkout e Confirmação - Pagamento à Vista (Fluxo Feliz
     await expect(page).toHaveURL(/\/success/)
     await expect(page.getByRole('heading', { name: 'Pedido Aprovado!' })).toBeVisible()
   })
+
+  test('CT05.1: deve aprovar automaticamente o crédito quando o score do cpf for maior que 700 no financiamento.', async ({ page, app }) => {
+    const customer = {  
+      name: 'Marta',
+      lastName: 'Nunes',
+      email: 'marta.nunes@teste.com',
+      phone: '(11) 99999-9999',
+      document: '12345678909',
+      store: 'Velô Paulista',
+      paymentMethod: 'Financiamento',
+      totalPrice: 'R$ 40.000,00'
+    }
+
+    await deleteOrderByEmail(customer.email)
+
+    await page.route('**/functions/v1/credit-analysis', async route => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          status: 'Done',
+          score: 750,
+        })
+      })
+    })
+
+    await page.goto('/')
+    await page.getByRole('link', { name: /Configure Agora/i }).click()
+
+    await app.configurator.expectPrice(customer.totalPrice)
+    await app.configurator.finishConfigurator()
+    await app.checkout.expectLoaded()
+
+    await app.checkout.fillPersonalData(customer)
+    await app.checkout.selectStore(customer.store)
+
+    await app.checkout.selectPaymentMethod(customer.paymentMethod)
+    //await app.checkout.expectSummaryTotal(customer.totalPrice)
+    await app.checkout.acceptTerms()
+    await app.checkout.submit()
+
+    await expect(page).toHaveURL(/\/success/)
+    await expect(page.getByRole('heading', { name: 'Pedido Aprovado!' })).toBeVisible()
+  })
 })
