@@ -1,5 +1,5 @@
 import { useLocation, useNavigate, Navigate, Link } from 'react-router-dom';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { CheckCircle, XCircle, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Order, formatPrice, ExteriorColor, WheelType } from '@/store/configuratorStore';
@@ -42,8 +42,6 @@ const Success = () => {
     return <Navigate to="/" replace />;
   }
 
-  const isApproved = order.status === 'APROVADO';
-
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
       {/* Logo */}
@@ -54,9 +52,13 @@ const Success = () => {
       <div className="w-full max-w-2xl bg-card rounded-lg shadow-elegant-lg p-8 animate-scale-in">
         {/* Status Icon */}
         <div className="flex justify-center mb-6">
-          {isApproved ? (
+          {order.status === 'APROVADO' ? (
             <div className="w-20 h-20 rounded-full bg-success/10 flex items-center justify-center">
               <CheckCircle className="w-12 h-12 text-success" />
+            </div>
+          ) : order.status === 'EM_ANALISE' ? (
+            <div className="w-20 h-20 rounded-full bg-amber-500/10 flex items-center justify-center">
+              <Clock className="w-12 h-12 text-amber-500" />
             </div>
           ) : (
             <div className="w-20 h-20 rounded-full bg-destructive/10 flex items-center justify-center">
@@ -71,15 +73,25 @@ const Success = () => {
             data-testid="success-status"
             className={cn(
               'font-display text-3xl font-bold mb-2',
-              isApproved ? 'text-success' : 'text-destructive'
+              order.status === 'APROVADO'
+                ? 'text-success'
+                : order.status === 'EM_ANALISE'
+                  ? 'text-amber-500'
+                  : 'text-destructive'
             )}
           >
-            {isApproved ? 'Pedido Aprovado!' : 'Crédito Reprovado'}
+            {order.status === 'APROVADO' 
+              ? 'Pedido Aprovado!' 
+              : order.status === 'EM_ANALISE'
+                ? 'Crédito em Análise!'
+                : 'Crédito Reprovado'}
           </h1>
           <p className="text-muted-foreground">
-            {isApproved
+            {order.status === 'APROVADO'
               ? 'Seu pedido foi processado com sucesso. Em breve entraremos em contato.'
-              : 'Infelizmente seu crédito não foi aprovado. Tente novamente com pagamento à vista.'}
+              : order.status === 'EM_ANALISE'
+                ? 'Seu pedido de financiamento está em análise. Você pode acompanhar o status pela consulta de pedido.'
+                : 'Infelizmente seu crédito não foi aprovado. Tente novamente com pagamento à vista.'}
           </p>
         </div>
 

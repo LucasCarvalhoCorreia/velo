@@ -1,7 +1,7 @@
 import { test, expect } from '../support/fixtures'
 import { deleteOrderByEmail } from '../support/database/orderRepository'
 
-test.describe('CT04 - Checkout - Validação de Campos Obrigatórios e Dados Inválidos', () => {
+test.describe('Checkout - Validação de Campos Obrigatórios e Dados Inválidos', () => {
   test.beforeEach(async ({ page, app }) => {
     await page.goto('/order')
     await expect(page.getByTestId('checkout-submit')).toBeVisible()
@@ -108,8 +108,13 @@ test.describe('CT04 - Checkout - Validação de Campos Obrigatórios e Dados Inv
   })
 })
 
-test.describe('CT05 - Checkout e Confirmação - Pagamento à Vista (Fluxo Feliz)', () => {
-  test('deve criar um pedido com sucesso para pagamento à vista', async ({ page, app }) => {
+test.describe('Checkout e Confirmação - Pagamento à Vista (Fluxo Feliz)', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('link', { name: /Configure Agora/i }).click()
+  })
+
+  test('CT05 - deve criar um pedido com sucesso para pagamento à vista', async ({ page, app }) => {
 
     const customer = {
       name: 'Lucas',
@@ -124,9 +129,6 @@ test.describe('CT05 - Checkout e Confirmação - Pagamento à Vista (Fluxo Feliz
 
     await deleteOrderByEmail(customer.email)
 
-    await page.goto('/')
-    await page.getByRole('link', { name: /Configure Agora/i }).click()
-
     await app.configurator.expectPrice(customer.totalPrice)
     await app.configurator.finishConfigurator()
     await app.checkout.expectLoaded()
@@ -139,11 +141,10 @@ test.describe('CT05 - Checkout e Confirmação - Pagamento à Vista (Fluxo Feliz
     await app.checkout.acceptTerms()
     await app.checkout.submit()
 
-    await expect(page).toHaveURL(/\/success/)
-    await expect(page.getByRole('heading', { name: 'Pedido Aprovado!' })).toBeVisible()
+    await app.checkout.statusValidation('Pedido Aprovado!')
   })
 
-  test('CT05.1: deve aprovar automaticamente o crédito quando o score do cpf for maior que 700 no financiamento.', async ({ page, app }) => {
+  test('CT06 - deve aprovar automaticamente o crédito quando o score do cpf for maior que 700 no financiamento.', async ({ page, app }) => {
     const customer = {  
       name: 'Marta',
       lastName: 'Nunes',
@@ -157,19 +158,7 @@ test.describe('CT05 - Checkout e Confirmação - Pagamento à Vista (Fluxo Feliz
 
     await deleteOrderByEmail(customer.email)
 
-    await page.route('**/functions/v1/credit-analysis', async route => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          status: 'Done',
-          score: 750,
-        })
-      })
-    })
-
-    await page.goto('/')
-    await page.getByRole('link', { name: /Configure Agora/i }).click()
+    await app.checkout.mockCreditAnalysis(750)
 
     await app.configurator.expectPrice(customer.totalPrice)
     await app.configurator.finishConfigurator()
@@ -179,11 +168,165 @@ test.describe('CT05 - Checkout e Confirmação - Pagamento à Vista (Fluxo Feliz
     await app.checkout.selectStore(customer.store)
 
     await app.checkout.selectPaymentMethod(customer.paymentMethod)
-    //await app.checkout.expectSummaryTotal(customer.totalPrice)
     await app.checkout.acceptTerms()
     await app.checkout.submit()
 
-    await expect(page).toHaveURL(/\/success/)
-    await expect(page.getByRole('heading', { name: 'Pedido Aprovado!' })).toBeVisible()
+    await app.checkout.statusValidation('Pedido Aprovado!')
+  })
+
+  test('CT07 - deve ficar em análise quando o score do cpf estiver entre 500 e 700 no financiamento.', async ({ page, app }) => {
+    const customer = {  
+      name: 'João',
+      lastName: 'Silva',
+      email: 'joao.silva@teste.com',
+      phone: '(11) 99999-9999',
+      document: '30927188015',
+      store: 'Velô Paulista',
+      paymentMethod: 'Financiamento',
+      totalPrice: 'R$ 40.000,00'
+    }
+
+    await deleteOrderByEmail(customer.email)
+
+    await app.checkout.mockCreditAnalysis(502)
+
+    await app.configurator.expectPrice(customer.totalPrice)
+    await app.configurator.finishConfigurator()
+    await app.checkout.expectLoaded()
+
+    await app.checkout.fillPersonalData(customer)
+    await app.checkout.selectStore(customer.store)
+
+    await app.checkout.selectPaymentMethod(customer.paymentMethod)
+    await app.checkout.acceptTerms()
+    await app.checkout.submit()
+
+    await app.checkout.statusValidation('Crédito em Análise!')
+  })
+
+  test('CT08 - deve reprovar o crédito quando o score do cpf for menor que 500 no financiamento.', async ({ page, app }) => {
+    const customer = {  
+      name: 'João',
+      lastName: 'Silva',
+      email: 'joao.silva@teste.com',
+      phone: '(11) 99999-9999',
+      document: '30927188024',
+      store: 'Velô Paulista',
+      paymentMethod: 'Financiamento',
+      totalPrice: 'R$ 40.000,00'
+    }
+
+    await deleteOrderByEmail(customer.email)
+
+    await app.checkout.mockCreditAnalysis(500)
+
+    await app.configurator.expectPrice(customer.totalPrice)
+    await app.configurator.finishConfigurator()
+    await app.checkout.expectLoaded()
+
+    await app.checkout.fillPersonalData(customer)
+    await app.checkout.selectStore(customer.store)
+
+    await app.checkout.selectPaymentMethod(customer.paymentMethod)
+    await app.checkout.acceptTerms()
+    await app.checkout.submit()
+
+    await app.checkout.statusValidation('Crédito Reprovado')
+  })
+
+  test('CT08.1 - deve reprovar o crédito quando o score do cpf for menor que 500 e com entrada menor que 50% no financiamento.', async ({ page, app }) => {
+    const customer = {  
+      name: 'João',
+      lastName: 'Silva',
+      email: 'joao.silva@teste.com',
+      phone: '(11) 99999-9999',
+      document: '30927188031',
+      store: 'Velô Paulista',
+      paymentMethod: 'Financiamento',
+      totalPrice: 'R$ 40.000,00',
+      downPayment: '10000'
+    }
+
+    await deleteOrderByEmail(customer.email)
+
+    await app.checkout.mockCreditAnalysis(500)
+
+    await app.configurator.expectPrice(customer.totalPrice)
+    await app.configurator.finishConfigurator()
+    await app.checkout.expectLoaded()
+
+    await app.checkout.fillPersonalData(customer)
+    await app.checkout.selectStore(customer.store)
+
+    await app.checkout.selectPaymentMethod(customer.paymentMethod)
+    await app.checkout.fillDownPayment('10000')
+    await app.checkout.acceptTerms()
+    await app.checkout.submit()
+
+    await app.checkout.statusValidation('Crédito Reprovado')
+  })
+
+  test('CT08.2 - deve aprovar o crédito quando o score do cpf for menor que 500 e com entrada igual a 50% no financiamento.', async ({ page, app }) => {
+    const customer = {  
+      name: 'Marilene',
+      lastName: 'Rosa',
+      email: 'marilene.rosa@teste.com',
+      phone: '(11) 99999-9999',
+      document: '93913013393',
+      store: 'Velô Paulista',
+      paymentMethod: 'Financiamento',
+      totalPrice: 'R$ 40.000,00',
+      downPayment: '20000'
+    }
+
+    await deleteOrderByEmail(customer.email)
+
+    await app.checkout.mockCreditAnalysis(420)
+
+    await app.configurator.expectPrice(customer.totalPrice)
+    await app.configurator.finishConfigurator()
+    await app.checkout.expectLoaded()
+
+    await app.checkout.fillPersonalData(customer)
+    await app.checkout.selectStore(customer.store)
+
+    await app.checkout.selectPaymentMethod(customer.paymentMethod)
+    await app.checkout.fillDownPayment('20000')
+    await app.checkout.acceptTerms()
+    await app.checkout.submit()
+
+    await app.checkout.statusValidation('Pedido Aprovado!')
+  })
+
+  test('CT09 - deve aprovar o crédito quando o score do cpf for menor que 500 e com entrada maior que 50% no financiamento.', async ({ page, app }) => {
+    const customer = {  
+      name: 'Carla ',
+      lastName: 'Nunes',
+      email: 'carla.nunes@teste.com',
+      phone: '(11) 99999-9999',
+      document: '28373710175',
+      store: 'Velô Paulista',
+      paymentMethod: 'Financiamento',
+      totalPrice: 'R$ 40.000,00',
+      downPayment: '25000'
+    }
+
+    await deleteOrderByEmail(customer.email)
+
+    await app.checkout.mockCreditAnalysis(300)
+
+    await app.configurator.expectPrice(customer.totalPrice)
+    await app.configurator.finishConfigurator()
+    await app.checkout.expectLoaded()
+
+    await app.checkout.fillPersonalData(customer)
+    await app.checkout.selectStore(customer.store)
+
+    await app.checkout.selectPaymentMethod(customer.paymentMethod)
+    await app.checkout.fillDownPayment('25000')
+    await app.checkout.acceptTerms()
+    await app.checkout.submit()
+
+    await app.checkout.statusValidation('Pedido Aprovado!')
   })
 })
