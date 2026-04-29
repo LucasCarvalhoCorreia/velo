@@ -67,18 +67,6 @@ export function createCheckoutActions(page: Page) {
         async statusValidation(status: string) {
             await expect(page).toHaveURL(/\/success/)
             await expect(page.getByRole('heading', { name: status })).toBeVisible()
-        },
-
-        async mockCreditAnalysis(score: number) {
-            await page.route('**/credit-analysis', route => {
-                route.fulfill({
-                    status: 200,
-                    contentType: 'application/json',
-                    body: JSON.stringify({
-                        score: score
-                    })
-                })
-            })
         }
     }
 }

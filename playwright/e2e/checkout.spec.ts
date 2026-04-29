@@ -109,9 +109,8 @@ test.describe('Checkout - Validação de Campos Obrigatórios e Dados Inválidos
 })
 
 test.describe('Checkout e Confirmação - Pagamento à Vista (Fluxo Feliz)', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/')
-    await page.getByRole('link', { name: /Configure Agora/i }).click()
+  test.beforeEach(async ({ app }) => {
+    await app.hero.open()
   })
 
   test('CT05 - deve criar um pedido com sucesso para pagamento à vista', async ({ page, app }) => {
@@ -158,7 +157,7 @@ test.describe('Checkout e Confirmação - Pagamento à Vista (Fluxo Feliz)', () 
 
     await deleteOrderByEmail(customer.email)
 
-    await app.checkout.mockCreditAnalysis(750)
+    await app.mock.creditAnalysis(750)
 
     await app.configurator.expectPrice(customer.totalPrice)
     await app.configurator.finishConfigurator()
@@ -188,7 +187,7 @@ test.describe('Checkout e Confirmação - Pagamento à Vista (Fluxo Feliz)', () 
 
     await deleteOrderByEmail(customer.email)
 
-    await app.checkout.mockCreditAnalysis(502)
+    await app.mock.creditAnalysis(502)
 
     await app.configurator.expectPrice(customer.totalPrice)
     await app.configurator.finishConfigurator()
@@ -218,7 +217,7 @@ test.describe('Checkout e Confirmação - Pagamento à Vista (Fluxo Feliz)', () 
 
     await deleteOrderByEmail(customer.email)
 
-    await app.checkout.mockCreditAnalysis(500)
+    await app.mock.creditAnalysis(500)
 
     await app.configurator.expectPrice(customer.totalPrice)
     await app.configurator.finishConfigurator()
@@ -231,7 +230,7 @@ test.describe('Checkout e Confirmação - Pagamento à Vista (Fluxo Feliz)', () 
     await app.checkout.acceptTerms()
     await app.checkout.submit()
 
-    await app.checkout.statusValidation('Crédito Reprovado')
+    await app.checkout.statusValidation('Pedido Reprovado!')
   })
 
   test('CT08.1 - deve reprovar o crédito quando o score do cpf for menor que 500 e com entrada menor que 50% no financiamento.', async ({ page, app }) => {
@@ -249,7 +248,7 @@ test.describe('Checkout e Confirmação - Pagamento à Vista (Fluxo Feliz)', () 
 
     await deleteOrderByEmail(customer.email)
 
-    await app.checkout.mockCreditAnalysis(500)
+    await app.mock.creditAnalysis(500)
 
     await app.configurator.expectPrice(customer.totalPrice)
     await app.configurator.finishConfigurator()
@@ -263,7 +262,7 @@ test.describe('Checkout e Confirmação - Pagamento à Vista (Fluxo Feliz)', () 
     await app.checkout.acceptTerms()
     await app.checkout.submit()
 
-    await app.checkout.statusValidation('Crédito Reprovado')
+    await app.checkout.statusValidation('Pedido Reprovado!')
   })
 
   test('CT08.2 - deve aprovar o crédito quando o score do cpf for menor que 500 e com entrada igual a 50% no financiamento.', async ({ page, app }) => {
@@ -281,7 +280,7 @@ test.describe('Checkout e Confirmação - Pagamento à Vista (Fluxo Feliz)', () 
 
     await deleteOrderByEmail(customer.email)
 
-    await app.checkout.mockCreditAnalysis(420)
+    await app.mock.creditAnalysis(420)
 
     await app.configurator.expectPrice(customer.totalPrice)
     await app.configurator.finishConfigurator()
@@ -313,7 +312,7 @@ test.describe('Checkout e Confirmação - Pagamento à Vista (Fluxo Feliz)', () 
 
     await deleteOrderByEmail(customer.email)
 
-    await app.checkout.mockCreditAnalysis(300)
+    await app.mock.creditAnalysis(300)
 
     await app.configurator.expectPrice(customer.totalPrice)
     await app.configurator.finishConfigurator()

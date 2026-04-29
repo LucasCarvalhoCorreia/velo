@@ -84,7 +84,7 @@ const Success = () => {
               ? 'Pedido Aprovado!' 
               : order.status === 'EM_ANALISE'
                 ? 'Crédito em Análise!'
-                : 'Crédito Reprovado'}
+                : 'Pedido Reprovado!'}
           </h1>
           <p className="text-muted-foreground">
             {order.status === 'APROVADO'
