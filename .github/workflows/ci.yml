@@ -1,0 +1,40 @@
+# Este workflow é responsável por executar os testes unitários da aplicação a cada push na branch main.
+# A estrutura foi desenhada de forma simples, mas preparada para a futura adição de novos processos de CI.
+
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  NODE_VERSION: '24'
+
+jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      # Baixa o código do repositório para o runner do GitHub Actions
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Configura a versão do ambiente Node.js baseada na variável de ambiente global
+      - name: Setup Node.js
+        uses: actions/setup-node@v6.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      # Habilita o Corepack para utilizar o Yarn sem necessidade de instalação global extra
+      - name: Enable Corepack
+        run: corepack enable
+
+      # Instala as dependências do projeto contidas no yarn.lock
+      - name: Install Dependencies
+        run: yarn install
+
+      # Executa a suíte de testes unitários
+      - name: Run Unit Tests
+        run: yarn test
