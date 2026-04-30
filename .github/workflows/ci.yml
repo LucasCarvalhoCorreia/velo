@@ -48,6 +48,8 @@ jobs:
     name: Build & Deploy Vercel Preview
     needs: unit-tests
     runs-on: ubuntu-latest
+    outputs:
+      deployment_url: ${{ steps.deploy.outputs.deployment-url }}
     
     steps:
       # Baixa o código do repositório para o runner do GitHub Actions
@@ -78,4 +80,49 @@ jobs:
 
       # Deploy preview do vercel
       - name: Deploy preview
-        run: yarn vercel deploy --prebuilt --target=preview --token=$VERCEL_TOKEN --scope=$VERCEL_SCOPE
+        id: deploy
+        run: |
+        URL=$(yarn vercel deploy --prebuilt --target=preview --token=$VERCEL_TOKEN --scope=$VERCEL_SCOPE)
+        echo "deployment-url=$URL" >> $GITHUB_OUTPUT
+
+  e2e-tests:
+    name: Run E2E Tests
+    runs-on: ubuntu-latest
+    needs: build-and-deploy
+    
+    steps:
+      # Baixa o código do repositório para o runner do GitHub Actions
+      - name: Checkout Repository
+        uses: actions/checkout@v6.0.2
+
+      # Configura a versão do ambiente Node.js baseada na variável de ambiente global
+      - name: Setup Node.js
+        uses: actions/setup-node@v6.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      # Habilita o Corepack para utilizar o Yarn sem necessidade de instalação global extra
+      - name: Enable Corepack
+        run: corepack enable
+
+      # Instala as dependências do projeto
+      - name: Install Dependencies
+        run: yarn install
+
+      # Instalação do chromium para o playwright
+      - name: Install Playwright Browsers
+        run: yarn playwright install --with-deps chromium
+
+      # Executa a suíte de testes e2e
+      - name: Run E2E Regression Tests
+        run: yarn playwright test playwright/e2e/online.spec.ts
+        env:
+          BASE_URL: ${{ needs.build-and-deploy.outputs.deployment_url }}
+
+      # Relatorio de Testes Automatizados
+      - name: Upload Playwright Test Report
+        if: ${{!cancelled()}}
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: playwright-report
+          path: playwright-report
