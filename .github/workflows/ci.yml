@@ -115,7 +115,7 @@ jobs:
 
       # Executa a suíte de testes e2e
       - name: Run E2E Regression Tests
-        run: yarn playwright test playwright/e2e/online.spec.ts
+        run: yarn playwright test
         env:
           BASE_URL: ${{ needs.build-and-deploy.outputs.deployment_url }}
 
