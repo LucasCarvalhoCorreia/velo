@@ -10,6 +10,8 @@ on:
 
 env:
   NODE_VERSION: '24'
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+  VERCEL_SCOPE: lucascarvalhocorreias-projects
 
 jobs:
   unit-tests:
@@ -38,3 +40,36 @@ jobs:
       # Executa a suíte de testes unitários
       - name: Run Unit Tests
         run: yarn test
+
+  
+  build-and-deploy:
+    name: Build & Deploy Vercel Preview
+    needs: unit-tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Baixa o código do repositório para o runner do GitHub Actions
+      - name: Checkout Repository
+        uses: actions/checkout@v6.0.2
+
+      # Configura a versão do ambiente Node.js baseada na variável de ambiente global
+      - name: Setup Node.js
+        uses: actions/setup-node@v6.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      # Habilita o Corepack para utilizar o Yarn sem necessidade de instalação global extra
+      - name: Enable Corepack
+        run: corepack enable
+
+      # Instala as dependencias do projeto
+      - name: Install Dependencies
+        run: yarn install
+
+      # Build para o vercel
+      - name: Build Vercel
+        run: yarn vercel build --token=$VERCEL_TOKEN
+
+      # Deploy preview do vercel
+      - name: Deploy preview
+        run: yarn vercel deploy --prebuilt -- target=preview --token=$VERCEL_TOKEN --scope=$VERCEL_SCOPE
