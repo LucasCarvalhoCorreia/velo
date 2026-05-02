@@ -77,6 +77,9 @@ jobs:
           --environment=preview \
           --scope=$VERCEL_SCOPE \
           --token=$VERCEL_TOKEN
+          
+          # Força o Vite a ler as variáveis copiando para .env.local
+          cp .vercel/.env.preview.local .env.local || echo "Nenhum arquivo .env.preview.local encontrado"
 
       # Build para o vercel
       - name: Build Vercel
