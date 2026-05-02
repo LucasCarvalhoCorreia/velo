@@ -1,7 +1,7 @@
 # Este workflow é responsável por executar os testes unitários da aplicação a cada push na branch main.
 # A estrutura foi desenhada de forma simples, mas preparada para a futura adição de novos processos de CI.
 
-name: Continuous Integration
+name: Continuous Deployment
 
 on:
   push:
@@ -72,7 +72,11 @@ jobs:
 
       # Obter as configurações do vercel
       - name: Pul Vercel Config
-        run: yarn vercel pull --yes --environment=preview --scope=$VERCEL_SCOPE --token=$VERCEL_TOKEN
+        run: |
+          yarn vercel pull --yes \
+          --environment=preview \
+          --scope=$VERCEL_SCOPE \
+          --token=$VERCEL_TOKEN
 
       # Build para o vercel
       - name: Build Vercel
@@ -82,7 +86,9 @@ jobs:
       - name: Deploy preview
         id: deploy
         run: |
-          URL=$(yarn --silent vercel deploy --prebuilt --target=preview --token=$VERCEL_TOKEN --scope=$VERCEL_SCOPE)
+          URL=$(yarn --silent vercel deploy --prebuilt 
+          --target=preview --token=$VERCEL_TOKEN \
+          --scope=$VERCEL_SCOPE)
           echo "deployment-url=$URL" >> $GITHUB_OUTPUT
 
   e2e-tests:
@@ -126,3 +132,17 @@ jobs:
         with:
           name: playwright-report
           path: playwright-report
+
+  promote:
+    name: Promote to Production
+    needs: [e2e-tests]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Vercel promote
+        run: |
+          yarn vercel promote \
+          ${{ needs.build-and-deploy.outputs.deployment-url }} \
+          --token=$VERCEL_TOKEN \
+          --scope=$VERCEL_SCOPE \
+          --yes
