@@ -103,6 +103,13 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v6.0.2
 
+      - name: Debug Vercel Deployment URL
+        run: |
+          echo "URL Gerada pela Vercel: ${{ needs.build-and-deploy.outputs.deployment_url }}"
+          echo "Testando a URL..."
+          curl -s ${{ needs.build-and-deploy.outputs.deployment_url }}/order | grep "supabaseUrl" || echo "Não encontrou erro de supabaseUrl"
+          curl -s ${{ needs.build-and-deploy.outputs.deployment_url }}/order | grep "Velô Sprint" || echo "Não encontrou Velô Sprint"
+
       # Configura a versão do ambiente Node.js baseada na variável de ambiente global
       - name: Setup Node.js
         uses: actions/setup-node@v6.4.0
