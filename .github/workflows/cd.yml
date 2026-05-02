@@ -71,7 +71,7 @@ jobs:
         run: yarn install
 
       # Obter as configurações do vercel
-      - name: Pul Vercel Config
+      - name: Pull Vercel Config
         run: |
           yarn vercel pull --yes \
           --environment=preview \
