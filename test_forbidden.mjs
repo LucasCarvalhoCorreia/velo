@@ -12,7 +12,7 @@ import { chromium } from 'playwright';
     }
   });
 
-  await page.goto('https://velo-git-main-lucascarvalhocorreias-projects.vercel.app/order', { waitUntil: 'networkidle' });
+  await page.goto('https://velo-7bawxfg3f-lucascarvalhocorreias-projects.vercel.app/order', { waitUntil: 'networkidle' });
   console.log('PAGE TITLE:', await page.title());
   const submitBtn = await page.getByTestId('checkout-submit').count();
   console.log('SUBMIT BTN COUNT:', submitBtn);
