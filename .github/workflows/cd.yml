@@ -46,7 +46,7 @@ jobs:
   
   build-and-deploy:
     name: Build & Deploy Vercel Preview
-    needs: unit-tests
+    needs: [unit-tests]
     runs-on: ubuntu-latest
     outputs:
       deployment_url: ${{ steps.deploy.outputs.deployment-url }}
@@ -78,10 +78,6 @@ jobs:
           --scope=$VERCEL_SCOPE \
           --token=$VERCEL_TOKEN
 
-      # Força o Vite a ler as variáveis copiando para .env.local
-      - name: Force Vite to Read Env Vars
-        run: cp .vercel/.env.preview.local .env.local || echo "Nenhum arquivo .env.preview.local encontrado"
-
       # Build para o vercel
       - name: Build Vercel
         run: yarn vercel build --token=$VERCEL_TOKEN
@@ -106,13 +102,6 @@ jobs:
       # Baixa o código do repositório para o runner do GitHub Actions
       - name: Checkout Repository
         uses: actions/checkout@v6.0.2
-
-      - name: Debug Vercel Deployment URL
-        run: |
-          echo "URL Gerada pela Vercel: ${{ needs.build-and-deploy.outputs.deployment_url }}"
-          echo "Testando a URL..."
-          curl -s ${{ needs.build-and-deploy.outputs.deployment_url }}/order | grep "supabaseUrl" || echo "Não encontrou erro de supabaseUrl"
-          curl -s ${{ needs.build-and-deploy.outputs.deployment_url }}/order | grep "Velô Sprint" || echo "Não encontrou Velô Sprint"
 
       # Configura a versão do ambiente Node.js baseada na variável de ambiente global
       - name: Setup Node.js
