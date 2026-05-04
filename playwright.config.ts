@@ -6,6 +6,18 @@ import { defineConfig, devices } from '@playwright/test';
  */
 import 'dotenv/config';
 
+function useRemoteBaseURL(): boolean {
+  const raw = process.env.BASE_URL?.trim();
+  if (!raw) return false;
+  try {
+    const u = new URL(raw);
+    const host = u.hostname.toLowerCase();
+    return host !== 'localhost' && host !== '127.0.0.1';
+  } catch {
+    return false;
+  }
+}
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -92,10 +104,14 @@ export default defineConfig({
     // },
   ],
 
-   /* Run your local dev server before starting the tests */
-   webServer: {
-     command: 'yarn dev',
-     url: 'http://localhost:5173',
-     reuseExistingServer: !process.env.CI,
-   },
+  /* Sobe o Vite só quando os testes apontam para localhost (sem BASE_URL remoto). */
+  ...(useRemoteBaseURL()
+    ? {}
+    : {
+        webServer: {
+          command: 'yarn dev',
+          url: 'http://localhost:5173',
+          reuseExistingServer: !process.env.CI,
+        },
+      }),
 });
