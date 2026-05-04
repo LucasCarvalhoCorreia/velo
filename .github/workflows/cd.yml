@@ -121,11 +121,21 @@ jobs:
       - name: Install Playwright Browsers
         run: yarn playwright install --with-deps chromium
 
+      # Mesmas variáveis do build preview (incl. DATABASE_URL / Supabase) para o seed
+      # via Kysely bater no mesmo backend que o deploy em BASE_URL.
+      - name: Pull Vercel Preview environment
+        run: |
+          yarn vercel pull --yes \
+          --environment=preview \
+          --scope=$VERCEL_SCOPE \
+          --token=$VERCEL_TOKEN
+
       # Executa a suíte de testes e2e
       - name: Run E2E Regression Tests
         run: yarn playwright test
         env:
           BASE_URL: ${{ needs.build-and-deploy.outputs.deployment_url }}
+          DOTENV_CONFIG_PATH: .vercel/.env.preview.local
 
       # Relatorio de Testes Automatizados
       - name: Upload Playwright Test Report
@@ -187,4 +197,3 @@ jobs:
           --token=$VERCEL_TOKEN \
           --scope=$VERCEL_SCOPE \
           --yes
-          
