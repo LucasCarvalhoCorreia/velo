@@ -211,7 +211,7 @@ jobs:
         run: yarn playwright install --with-deps chromium
 
       - name: Run E2E Production Smoke Tests
-        run: yarn playwright test --grep @production
+        run: yarn playwright test
         env:
           BASE_URL: ${{ needs.promote.outputs.deployment_url }}
           VITE_SUPABASE_URL: ${{ secrets.PRODUCTION_SUPABASE_URL }}
