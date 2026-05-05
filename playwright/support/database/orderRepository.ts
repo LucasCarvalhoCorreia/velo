@@ -1,23 +1,19 @@
-import { db } from './database'
-import { OrderTable } from './schema'
-
+import { supabase } from './database'
 import type { OrderDetails } from '../actions/orderLookupActions'
-
 import crypto from 'crypto'
 
 export function normalizeValue(value: string) {
   if (!value) return '';
 
   return value
-  .normalize('NFD')
-  .replace(/[\u0300-\u036f]/g, '')
-  .replace(/\s+/g, '')
-  .toLowerCase();
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '')
+    .toLowerCase();
 }
 
 export async function insertOrder(order: OrderDetails) {
-
-  const data: OrderTable = {
+  const data = {
     id: crypto.randomUUID(),
     order_number: order.number,
     color: order.color.toLowerCase().replace(' ', '-'),
@@ -34,14 +30,16 @@ export async function insertOrder(order: OrderDetails) {
     optionals: [],
   }
 
-  // If the record exists it might throw a duplicate error, but we manage teardown.
-  await db.insertInto('orders').values(data).execute()
+  const { error } = await supabase.from('orders').insert(data)
+  if (error) throw new Error(`insertOrder failed: ${error.message}`)
 }
 
 export async function deleteOrderByNumber(orderNumber: string) {
-  await db.deleteFrom('orders').where('order_number', '=', orderNumber).execute()
+  const { error } = await supabase.from('orders').delete().eq('order_number', orderNumber)
+  if (error) throw new Error(`deleteOrderByNumber failed: ${error.message}`)
 }
 
 export async function deleteOrderByEmail(orderEmail: string) {
-  await db.deleteFrom('orders').where('customer_email', '=', orderEmail).execute()
+  const { error } = await supabase.from('orders').delete().eq('customer_email', orderEmail)
+  if (error) throw new Error(`deleteOrderByEmail failed: ${error.message}`)
 }

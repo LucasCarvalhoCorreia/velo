@@ -1,15 +1,6 @@
-import 'dotenv/config'
-import { Pool } from 'pg'
-import { Kysely, PostgresDialect } from 'kysely'
-import { Database } from './schema'
+import { createClient } from '@supabase/supabase-js'
 
-const dialect = new PostgresDialect({
-  pool: new Pool({
-    connectionString: process.env.DATABASE_URL,
-    max: 10,
-  })
-})
+const supabaseUrl = process.env.VITE_SUPABASE_URL!
+const supabaseKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY!
 
-export const db = new Kysely<Database>({
-  dialect,
-})
+export const supabase = createClient(supabaseUrl, supabaseKey)
